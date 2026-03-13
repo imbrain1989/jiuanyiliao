@@ -1,0 +1,22 @@
+{
+  "name": "jiuanyiliao-skill",
+  "version": "1.0.0",
+  "description": "九安医疗 (002432.SZ) 股价定时推送技能",
+  "main": "scripts/setup-cron.js",
+  "scripts": {
+    "setup": "node scripts/setup-cron.js",
+    "remove": "node scripts/remove-cron.js",
+    "query": "node scripts/query-price.js"
+  },
+  "keywords": [
+    "openclaw",
+    "skill",
+    "stock",
+    "jiuanyiliao",
+    "002432",
+    "cron",
+    "feishu"
+  ],
+  "author": "",
+  "license": "MIT"
+}
