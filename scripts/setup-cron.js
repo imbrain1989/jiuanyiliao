@@ -1,13 +1,14 @@
 /**
- * 九安医疗股价定时任务安装脚本（优化版本）
+ * 九安医疗股价定时任务安装脚本（CDP增强版本）
  * 
  * 使用方法：
  * node skills/jiuanyiliao/scripts/setup-cron.js
  * 
- * 2026-03-12 优化重点：
- * 1. 增加任务超时时间到120秒
- * 2. 简化查询消息，减少浏览器操作复杂度
- * 3. 确保消息目标配置正确
+ * 2026-03-15 CDP增强升级：
+ * 1. 使用Chrome DevTools Protocol (CDP) 替代普通浏览器访问
+ * 2. 增强错误处理和重试机制
+ * 3. 支持页面加载状态检测
+ * 4. 改进的元素定位策略
  */
 
 const { execSync } = require('child_process');
@@ -31,7 +32,7 @@ const SCHEDULE_TIMES = [
 
 const CHANNEL = 'feishu';
 const TIMEZONE = 'Asia/Shanghai';
-const TASK_TIMEOUT = 120; // 任务超时时间（秒）
+const TASK_TIMEOUT = 180; // 任务超时时间增加到180秒（CDP需要更多时间）
 // 推送目标用户 ID（飞书 open_id）- 已验证正确的配置
 const TARGET_USER = 'ou_3b363dce9bb583f7ec9f822e2b7a7880';
 
@@ -40,9 +41,34 @@ function generateCron(hour, minute) {
   return `${minute} ${hour} * * 1-5`;
 }
 
-// 生成优化的任务消息（简化版，减少浏览器操作复杂度）
+// 生成CDP增强的任务消息
 function generateMessage() {
-  return `查询${STOCK_INFO.name} (${STOCK_INFO.code}.${STOCK_INFO.market}) 当前股价，通过浏览器访问百度搜索获取实时数据，然后发送股价信息给用户。`;
+  return `使用Chrome DevTools Protocol (CDP) 查询${STOCK_INFO.name} (${STOCK_INFO.code}.${STOCK_INFO.market}) 当前股价。
+
+操作步骤：
+1. 尝试通过CDP协议连接到Chrome浏览器（端口9222）
+2. 访问百度搜索：https://www.baidu.com/s?wd=九安医疗股价
+3. 等待页面完全加载（networkidle状态）
+4. 获取页面元素快照并定位股价信息
+5. 提取股价数据（收盘价、涨跌幅、成交量等）
+6. 如果CDP失败，自动回退到普通浏览器模式
+7. 如果获取失败，自动重试最多3次（指数退避）
+8. 将格式化后的股价信息通过飞书发送给用户
+
+技术特性：
+- 超时时间：180秒
+- 重试策略：指数退避，最多3次
+- 回退机制：CDP失败时自动使用普通浏览器
+- 错误报告：详细的错误日志和状态信息
+
+预期数据格式：
+- 股票名称：九安医疗
+- 股票代码：002432.SZ
+- 当前价格：xx.xx 元
+- 涨跌幅：±x.xx%
+- 涨跌额：±x.xx 元
+- 成交量：xx.xx 万手
+- 更新时间：YYYY-MM-DD HH:mm:ss`;
 }
 
 // 执行命令
@@ -51,7 +77,7 @@ function execCommand(cmd) {
     const output = execSync(cmd, { 
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 30000 // 命令执行超时30秒
+      timeout: 45000 // 命令执行超时45秒
     });
     return { success: true, output };
   } catch (error) {
