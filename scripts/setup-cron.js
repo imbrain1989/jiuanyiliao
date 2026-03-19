@@ -34,7 +34,7 @@ const CHANNEL = 'feishu';
 const TIMEZONE = 'Asia/Shanghai';
 const TASK_TIMEOUT = 180; // 任务超时时间增加到180秒（CDP需要更多时间）
 // 推送目标用户 ID（飞书 open_id）- 已验证正确的配置
-const TARGET_USER = 'ou_3b363dce9bb583f7ec9f822e2b7a7880';
+const TARGET_USER = 'XXX';
 
 // 生成 cron 表达式
 function generateCron(hour, minute) {
