@@ -1,6 +1,6 @@
 {
   "name": "jiuanyiliao-skill",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "九安医疗 (002432.SZ) 股价定时推送技能",
   "main": "scripts/setup-cron.js",
   "scripts": {
